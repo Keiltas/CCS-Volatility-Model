@@ -1,8 +1,11 @@
-ForwardPrice = 188.827584434;
-volatilityTTM = 0.041095890;
 
-%underPrice = 100;
-strikePrice = 195;
-rfRate = 0.01;
-time = 15.0/365;
+volatilityTTM = 10.0/365;
 
+rfRate = 0.02996934116;
+%rfRate = 0.01;
+
+time = 10.0/365;
+
+
+ForwardPrice = SpotToForwardPrice(129, rfRate, 0, time)
+%ForwardPrice = 129.105962537;

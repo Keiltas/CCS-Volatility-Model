@@ -5,7 +5,7 @@ run('Data.m');
 
 StrikeVolatility = GetTbricksVolatility(strikePrice, volSpline, SyntheticFP, StdDev,  'model.mat');   
 
-DrawVolatilitySpline(90:5:260, volSpline, SyntheticFP, StdDev, 'model.mat');
+yy = DrawVolatilitySpline(90:5:260, volSpline, SyntheticFP, StdDev, 'model.mat');
 
 
 
@@ -17,19 +17,24 @@ InitGammaBLS = blsgamma(ForwardPrice, strikePrice, rfRate, time, StrikeVolatilit
 
 maxDiff = 50; % This paramter defines how far (in %) we want to differ form initial forward price(in terms of testing Taylor model performance)
               % For example, with maxDiff = 30, only prices in [0.7 * F,
-              % 1.3 * F] will be considered. F - initial foreward price
+              % 1.3 * F] will be considered. F - initial forward price
               
 SpotPrice = zeros(1, 2*maxDiff);
 CallPriceBLS = zeros(1, 2*maxDiff);
 PutPriceBLS = zeros(1, 2*maxDiff);
 CallPriceTAY = zeros(1, 2*maxDiff);
 PutPriceTAY = zeros(1, 2*maxDiff);
+CallPriceSkewTAY = zeros(1, 2*maxDiff);
+PutPriceSkewTAY = zeros(1, 2*maxDiff);
+
 
 for i = 1:(2*maxDiff)           % Claculating Fair prices for both Taylor and Black-Scholes models 
     SpotPrice(i) = ForwardPrice * (100-maxDiff-1 + i) / 100;
     [CallPriceBLS(i), PutPriceBLS(i)]  = blsprice(SpotPrice(i), strikePrice, rfRate, time, StrikeVolatility  / 100);
-    CallPriceTAY(i)  = max(TaylorInterpolation(Call, InitCallDeltaBLS, InitGammaBLS, ForwardPrice * (-maxDiff-1+i) / 100), 0);
-    PutPriceTAY(i) = max(TaylorInterpolation(Put, InitPutDeltaBLS, InitGammaBLS, ForwardPrice * (-maxDiff-1+i) / 100), 0);
+    CallPriceTAY(i)  = max(TaylorInterpolation(Call, InitCallDeltaBLS, InitGammaBLS, ForwardPrice * (-maxDiff-1+i) / 100, 0),  0);
+    PutPriceTAY(i) = max(TaylorInterpolation(Put, InitPutDeltaBLS, InitGammaBLS, ForwardPrice * (-maxDiff-1+i) / 100, 0),  0);    
+    CallPriceSkewTAY(i)  = max(TaylorInterpolation(Call, InitCallDeltaBLS, InitGammaBLS, ForwardPrice * (-maxDiff-1+i) / 100, 1, 1),  0);
+    PutPriceSkewTAY(i) = max(TaylorInterpolation(Put, InitPutDeltaBLS, InitGammaBLS, ForwardPrice * (-maxDiff-1+i) / 100, 1, 1),  0);
 end
 
 CallDeltaTAY = zeros(1, 2*maxDiff);
@@ -76,9 +81,10 @@ ylabel('Fair Price');
 
 plot(SpotPrice, CallPriceBLS, 'b');
 plot(SpotPrice, CallPriceTAY, 'r');
+plot(SpotPrice, CallPriceSkewTAY, 'c');
 
 hold off
-legend('Black-Scholes','Taylor');
+legend('Black-Scholes','Taylor', 'SkewTaylor');
 
 
 subplot(2,1,2)
@@ -88,9 +94,10 @@ xlabel('Spot Price');
 ylabel('Fair Price');
 plot(SpotPrice, PutPriceBLS, 'b');
 plot(SpotPrice, PutPriceTAY, 'r');
+plot(SpotPrice, PutPriceSkewTAY, 'c');
 
 hold off
-legend('Black-Scholes','Taylor');
+legend('Black-Scholes', 'Taylor', 'SkewTaylor');
 
 % Figures For Greeks
 

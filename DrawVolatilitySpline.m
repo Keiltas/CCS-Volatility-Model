@@ -1,4 +1,4 @@
-function DrawVolatilitySpline(StrikePrices, Spline, SyntheticFP, StdDev, TBInputData)
+function yy = DrawVolatilitySpline(StrikePrices, Spline, SyntheticFP, StdDev, TBInputData)
     figHandle = figure(1);
     clf;
     set(figHandle, 'units','normalized','position',[.4 .5 .3 .4]);
