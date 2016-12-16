@@ -1,3 +1,9 @@
+volatilityTTM = 10.0/365;
+rfRate = 0.02996934116;
+time = 10.0/365;
+SpotPrice = 129;
+
+ForwardPrice = SpotToForwardPrice(SpotPrice, rfRate, 0, time);
 
 ATMVolatility = 9;
 BreakpointScaleFactor = 1;
