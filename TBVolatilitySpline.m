@@ -17,32 +17,34 @@ classdef TBVolatilitySpline
        spline;
    end
    methods
-      function obj = TBVolatilitySpline(InputData, InputVolatility, ATMVolpath)
-          run(InputData);
-          run(InputVolatility);
+      function obj = TBVolatilitySpline(VolInput, ATMVolpath)
           
-          if ((size(sd, 1) ~=  size(vd, 1)) || (size(sd, 2) ~=  size(vd, 2)))
+          if ((size(VolInput.sd, 1) ~=  size(VolInput.vd, 1)) || (size(VolInput.sd, 2) ~=  size(VolInput.vd, 2)))
             error('Dimensions of x and y coordinates have to b equal.');
           end
-          if ((size(sd, 1) ~=  1) || (size(vd, 1) ~=  1))
+          if ((size(VolInput.sd, 1) ~=  1) || (size(VolInput.vd, 1) ~=  1))
             error('x and y coordinates are assumed to be row vectors.');
           end
           
           
-          ATMVolatility = ATMVolpath.GetValue(ForwardPrice);
+          obj.ATMVolatility = ATMVolpath.GetValue(VolInput.ForwardPrice);
           % Preliminary calculations
-          obj.SyntheticFP = ForwardPrice ^ (SwimCorrelation) * SwimReferencePrice ^ (1.0 - SwimCorrelation);
-          obj.StdDev = obj.SyntheticFP * ATMVolatility * sqrt(volatilityTTM);
-          obj.ATMVolatility = ATMVolatility;
-          obj.BreakpointScaleFactor = BreakpointScaleFactor;
-          obj.SlopeLeft = SlopeLeft;
-          obj.SlopeRight = SlopeRight;
+          obj.SyntheticFP = VolInput.ForwardPrice ^ (VolInput.SwimCorrelation) * VolInput.SwimReferencePrice ^ (1.0 - VolInput.SwimCorrelation);
+          obj.StdDev = obj.SyntheticFP * obj.ATMVolatility * sqrt(VolInput.volatilityTTM);
+          obj.BreakpointScaleFactor = VolInput.BreakpointScaleFactor;
+          obj.SlopeLeft = VolInput.SlopeLeft;
+          obj.SlopeRight = VolInput.SlopeRight;
       
           % Node with sd = 0 is the reserved central node with strike equal
           % to synthetic forward and with volatility equal to ATM volatility 
           % (retrieved from ATM volatility path in Tbricks)
           % CHECK for sd = 0 in input data hasn't done!
-    
+          sd = VolInput.sd;
+          vd = VolInput.vd;
+          multiplier = VolInput.multiplier;
+          baseSmileWeight = VolInput.baseSmileWeight;
+          multiplierSmileWeight = VolInput.multiplierSmileWeight;   
+          
           sd(size(sd, 2) + 1) = 0;
           vd(size(vd, 2) + 1) = 0;
 
@@ -87,7 +89,7 @@ classdef TBVolatilitySpline
           elseif (size(sd, 2) >  3)
               % ATM volatility input consists of three points, path is a parabola. 
               obj.type = 4;
-              obj.spline = csape(sd, [ SlopeLeft  vd SlopeRight ], [1 1]);       
+              obj.spline = csape(sd, [ obj.SlopeLeft  vd obj.SlopeRight ], [1 1]);       
               obj.leftBound(2) = ppval(obj.spline, obj.leftBound(1));
               obj.rightBound(2) = ppval(obj.spline, obj.rightBound(1));              
           end

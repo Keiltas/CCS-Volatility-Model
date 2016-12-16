@@ -55,6 +55,10 @@ classdef ATMVolPath
           end
           
       end
+%       function obj = ATMVolPath(InputFile)
+%           run(InputFile);
+%           ATMVolPath(xCoord, yCoord);
+%       end    
       % Calculate ATM volatility at a given point x.
       function value = GetValue(obj, x)
           if (x > obj.rightBound(1))

@@ -51,13 +51,10 @@ plot(xx, yy);
 % plot(xx, zz);
 % hold on
 % plot(xx, yy);
-run('Data.m');
-run('VolatilityInput.m');
 
-
-
-B = ATMVolPath([101, 110, 90], [9, 10, 9.5]);
-A = TBVolatilitySpline('Data.m', 'VolatilityInput.m', B);
+B = ATMVolPath([101], [ 10]);
+C = TBVolatilityInput('VolatilityInput.m');
+A = TBVolatilitySpline(C, B);
 A.GetValue(100)
  xx = 90:5:220;
  for i = 1:size(xx, 2)
